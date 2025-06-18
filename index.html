@@ -1,1 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Walkie-Talkie App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #E53935;
+      --primary-dark: #B71C1C;
+      --secondary: #0D0D0D;
+      --accent: #FF9800;
+      --success: #4CAF50;
+      --warning: #FFC107;
+      --light: #F8F9FA;
+      --dark: #212529;
+      --gray: #6c757d;
+      --transition: all 0.3s ease;
+      --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.3);
+      --radius: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+    }
 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #000000);
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      position: relative;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-logo i {
+      font-size: 1.8rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    .user-name-header {
+      font-weight: 500;
+      color: var(--light);
+      font-size: 0.9rem;
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .action-btn {
+      background: rgba(50, 50, 50, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ddd;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background: rgba(229, 57, 53, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Contenido principal */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Interfaz de walkie-talkie */
+    .walkie-talkie-ui {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 20px;
+      background: rgba(30, 30, 30, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(229, 57, 53, 0.3);
+      text-align: center;
+    }
+    
+    .channel-display {
+      font-size: 1.3rem;
+      background: rgba(40, 40, 40, 0.6);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      border-left: 3px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .channel-name {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .channel-users {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50px;
+      padding: 5px 15px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .channel-users:hover {
+      background: rgba(229, 57, 53, 0.2);
+    }
+    
+    .online-indicator {
+      width: 10px;
+      height: 10px;
+      background-color: var(--success);
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 5px;
+      box-shadow: 0 0 5px var(--success);
+    }
+    
+    .talk-button {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(229, 57, 53, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .talk-button:active {
+      transform: scale(0.95);
+      box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+    }
+    
+    .talk-button i {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      z-index: 2;
+    }
+    
+    .talk-button span {
+      z-index: 2;
+    }
+    
+    .talk-button::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, transparent 40%, rgba(76, 175, 80, 0.3) 100%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    
+    .talk-button.talking::before {
+      opacity: 1;
+      transform: scale(1.5);
+    }
+    
+    .channels-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .channel-btn {
+      background: rgba(50, 50, 50, 0.6);
+      border: 1px solid rgba(229, 57, 53, 0.3);
+      border-radius: 12px;
+      padding: 12px 20px;
+      color: #ddd;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .channel-btn.active {
+      background: rgba(229, 57, 53, 0.2);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .channel-btn:hover {
+      background: rgba(229, 57, 53, 0.15);
+    }
+    
+    .channel-btn i {
+      margin-right: 0;
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+    
+    .channel-btn span {
+      font-size: 0.9rem;
+    }
+    
+    /* Panel de usuarios en línea */
+    .users-panel {
+      position: fixed;
+      top: 0;
+      right: -350px;
+      width: 320px;
+      height: 100vh;
+      background: rgba(25, 25, 25, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      transition: var(--transition);
+      overflow-y: auto;
+      border-left: 2px solid var(--primary);
+    }
+    
+    .users-panel.open {
+      right: 0;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .panel-title {
+      font-size: 1.4rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .close-panel {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .close-panel:hover {
+      color: var(--primary);
+    }
+    
+    .online-count {
+      color: var(--success);
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .users-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .user-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: rgba(40, 40, 40, 0.6);
+      border-radius: 12px;
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+    
+    .user-item.online {
+      border-left-color: var(--success);
+    }
+    
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom right, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin-right: 15px;
+      color: white;
+      position: relative;
+    }
+    
+    .online-status {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: var(--gray);
+      border: 2px solid rgba(40, 40, 40, 0.6);
+      transition: var(--transition);
+    }
+    
+    .online-status.active {
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: white;
+    }
+    
+    .user-status {
+      font-size: 0.85rem;
+      color: #bbb;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .user-action-btn {
+      background: rgba(60, 60, 60, 0.6);
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ddd;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .user-action-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      padding: 15px;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+    
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes userOnline {
+      0% { transform: scale(0.8); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes pulseOnline {
+      0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .users-panel {
+        width: 280px;
+      }
+      
+      .talk-button {
+        width: 160px;
+        height: 160px;
+        font-size: 1.3rem;
+      }
+      
+      .channel-btn {
+        padding: 10px 15px;
+        min-width: 100px;
+        font-size: 0.9rem;
+      }
+      
+      .app-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      
+      .app-logo {
+        font-size: 1.8rem;
+        order: 1;
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .user-info {
+        order: 2;
+      }
+      
+      .user-actions {
+        order: 3;
+      }
+      
+      .action-btn {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .talk-button {
+        width: 140px;
+        height: 140px;
+        font-size: 1.2rem;
+      }
+      
+      .talk-button i {
+        font-size: 3rem;
+      }
+      
+      .channel-display {
+        font-size: 1.1rem;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .users-panel {
+        width: 100%;
+        right: -100%;
+      }
+      
+      .channel-btn {
+        min-width: 80px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header de la aplicación -->
+  <header class="app-header">
+    <div class="app-logo">
+      <i class="fas fa-walkie-talkie"></i> WalkieTalkie
+    </div>
+    <div class="user-info">
+      <div class="user-indicator" id="user-status-indicator"></div>
+      <div class="user-name-header" id="current-user">Usuario</div>
+    </div>
+    <div class="user-actions">
+      <button class="action-btn" title="Notificaciones">
+        <i class="fas fa-bell"></i>
+      </button>
+      <button class="action-btn" title="Ajustes">
+        <i class="fas fa-cog"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="main-content">
+    <div class="walkie-talkie-ui">
+      <div class="channel-display">
+        <div>
+          Canal: <span class="channel-name" id="current-channel">General</span>
+        </div>
+        <div class="channel-users" id="toggle-users-panel">
+          <span class="online-indicator"></span>
+          <span id="online-count">0</span> en línea
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+      
+      <button class="talk-button" id="talk-button">
+        <i class="fas fa-microphone"></i>
+        PRESIONA PARA HABLAR
+      </button>
+      
+      <div class="channels-list">
+        <button class="channel-btn active" data-channel="General">
+          <i class="fas fa-users"></i>
+          <span>General</span>
+        </button>
+        <button class="channel-btn" data-channel="Soporte">
+          <i class="fas fa-headset"></i>
+          <span>Soporte</span>
+        </button>
+        <button class="channel-btn" data-channel="Logística">
+          <i class="fas fa-truck"></i>
+          <span>Logística</span>
+        </button>
+        <button class="channel-btn" data-channel="Ventas">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Ventas</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Panel de usuarios en línea -->
+  <div class="users-panel" id="users-panel">
+    <div class="panel-header">
+      <h2 class="panel-title">
+        <i class="fas fa-users"></i> Usuarios en línea
+      </h2>
+      <button class="close-panel" id="close-panel">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="online-count">
+      <i class="fas fa-circle" style="color: var(--success); font-size: 12px;"></i>
+      <span id="panel-online-count">0</span> usuarios conectados
+    </div>
+    
+    <div class="users-list" id="users-list">
+      <!-- Los usuarios se cargarán dinámicamente aquí -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>&copy; 2023 WalkieTalkie App - Comunicación en tiempo real</p>
+    <div class="footer-links">
+      <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
+      <a href="#">Soporte</a>
+      <a href="#">Empresas</a>
+    </div>
+  </footer>
+
+  <script>
+    // Sistema de usuarios
+    class UserManager {
+      constructor() {
+        this.users = [];
+        this.currentUser = null;
+        this.onlineUsers = new Set();
+      }
+      
+      addUser(user) {
+        this.users.push(user);
+        if (user.online) {
+          this.onlineUsers.add(user.id);
+        }
+      }
+      
+      setCurrentUser(user) {
+        this.currentUser = user;
+        this.onlineUsers.add(user.id);
+        this.updateUI();
+      }
+      
+      toggleUserStatus(userId) {
+        const user = this.users.find(u => u.id === userId);
+        if (user) {
+          user.online = !user.online;
+          if (user.online) {
+            this.onlineUsers.add(userId);
+          } else {
+            this.onlineUsers.delete(userId);
+          }
+          this.updateUI();
+        }
+      }
+      
+      updateUI() {
+        const onlineCount = this.onlineUsers.size;
+        document.getElementById('online-count').textContent = onlineCount;
+        document.getElementById('panel-online-count').textContent = onlineCount;
+        
+        if (this.currentUser) {
+          document.getElementById('current-user').textContent = this.currentUser.name;
+          const indicator = document.getElementById('user-status-indicator');
+          indicator.style.backgroundColor = this.currentUser.online ? 'var(--success)' : 'var(--gray)';
+          indicator.style.boxShadow = this.currentUser.online ? '0 0 10px var(--success)' : 'none';
+        }
+        
+        this.renderUsersList();
+      }
+      
+      renderUsersList() {
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = '';
+        
+        this.users.forEach(user => {
+          const userItem = document.createElement('div');
+          userItem.className = `user-item ${user.online ? 'online' : ''}`;
+          userItem.innerHTML = `
+            <div class="user-avatar">
+              ${user.initial}
+              <div class="online-status ${user.online ? 'active' : ''}"></div>
+            </div>
+            <div class="user-info">
+              <div class="user-name">${user.name}</div>
+              <div class="user-status">
+                ${user.online ? 'En línea - Activo ahora' : 'Desconectado'}
+              </div>
+            </div>
+            <div class="user-actions">
+              <button class="user-action-btn" title="Llamar" data-user-id="${user.id}">
+                <i class="fas fa-phone"></i>
+              </button>
+              <button class="user-action-btn" title="Mensaje" data-user-id="${user.id}">
+                <i class="fas fa-comment"></i>
+              </button>
+            </div>
+          `;
+          usersList.appendChild(userItem);
+        });
+        
+        // Agregar event listeners a los botones de usuario
+        document.querySelectorAll('.user-action-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const userId = btn.dataset.userId;
+            const user = this.users.find(u => u.id === userId);
+            if (user) {
+              if (btn.title === 'Llamar') {
+                this.startCall(user);
+              } else {
+                this.sendMessage(user);
+              }
+            }
+            e.stopPropagation();
+          });
+        });
+      }
+      
+      startCall(user) {
+        alert(`Iniciando llamada con ${user.name}...`);
+        // Aquí iría la lógica real para iniciar una llamada
+      }
+      
+      sendMessage(user) {
+        alert(`Enviando mensaje a ${user.name}...`);
+        // Aquí iría la lógica real para enviar un mensaje
+      }
+    }
+
+    // Sistema de comunicación
+    class CommunicationSystem {
+      constructor() {
+        this.isTalking = false;
+        this.audioContext = null;
+        this.mediaStream = null;
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+      }
+      
+      async init() {
+        try {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          this.setupTalkButton();
+        } catch (error) {
+          console.error('Error al acceder al micrófono:', error);
+          alert('No se pudo acceder al micrófono. Asegúrate de permitir el acceso.');
+        }
+      }
+      
+      setupTalkButton() {
+        const talkButton = document.getElementById('talk-button');
+        
+        const startTalking = () => {
+          if (!this.isTalking && this.mediaStream) {
+            this.isTalking = true;
+            talkButton.classList.add('talking');
+            
+            // Iniciar grabación
+            this.mediaRecorder = new MediaRecorder(this.mediaStream);
+            this.audioChunks = [];
+            
+            this.mediaRecorder.ondataavailable = event => {
+              if (event.data.size > 0) {
+                this.audioChunks.push(event.data);
+              }
+            };
+            
+            this.mediaRecorder.onstop = () => {
+              const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+              this.playAudio(audioBlob);
+              this.isTalking = false;
+              talkButton.classList.remove('talking');
+            };
+            
+            this.mediaRecorder.start();
+          }
+        };
+        
+        const stopTalking = () => {
+          if (this.isTalking && this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+            this.mediaRecorder.stop();
+          }
+        };
+        
+        // Eventos para desktop
+        talkButton.addEventListener('mousedown', startTalking);
+        talkButton.addEventListener('mouseup', stopTalking);
+        talkButton.addEventListener('mouseleave', stopTalking);
+        
+        // Eventos para móvil
+        talkButton.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          startTalking();
+        });
+        
+        talkButton.addEventListener('touchend', stopTalking);
+      }
+      
+      playAudio(audioBlob) {
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.volume = 0.7;
+        audio.play();
+        
+        // Simular transmisión a otros usuarios
+        setTimeout(() => {
+          alert('¡Mensaje de voz enviado con éxito!');
+        }, 1000);
+      }
+    }
+
+    // Datos de usuarios de ejemplo
+    const sampleUsers = [
+      { id: 1, name: "Ana López", initial: "A", online: true },
+      { id: 2, name: "Carlos R.", initial: "C", online: true },
+      { id: 3, name: "María G.", initial: "M", online: true },
+      { id: 4, name: "Juan Pérez", initial: "J", online: true },
+      { id: 5, name: "Laura M.", initial: "L", online: true },
+      { id: 6, name: "Pedro V.", initial: "P", online: true },
+      { id: 7, name: "Sofía T.", initial: "S", online: false },
+      { id: 8, name: "Miguel Ángel", initial: "M", online: false },
+      { id: 9, name: "Roberto C.", initial: "R", online: false },
+      { id: 10, name: "Elena S.", initial: "E", online: false }
+    ];
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', () => {
+      const userManager = new UserManager();
+      const commSystem = new CommunicationSystem();
+      
+      // Agregar usuarios de ejemplo
+      sampleUsers.forEach(user => userManager.addUser(user));
+      
+      // Establecer usuario actual
+      userManager.setCurrentUser({
+        id: 11, 
+        name: "Tú", 
+        initial: "T", 
+        online: true
+      });
+      
+      // Iniciar sistema de comunicación
+      commSystem.init();
+      
+      // Configurar canales
+      document.querySelectorAll('.channel-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('current-channel').textContent = btn.dataset.channel;
+        });
+      });
+      
+      // Configurar panel de usuarios
+      const usersPanel = document.getElementById('users-panel');
+      const toggleUsersPanel = document.getElementById('toggle-users-panel');
+      const closePanel = document.getElementById('close-panel');
+      
+      toggleUsersPanel.addEventListener('click', () => {
+        usersPanel.classList.add('open');
+      });
+      
+      closePanel.addEventListener('click', () => {
+        usersPanel.classList.remove('open');
+      });
+      
+      // Simular actividad de usuarios
+      setInterval(() => {
+        // Cambiar el estado de un usuario aleatorio
+        const randomUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+        userManager.toggleUserStatus(randomUser.id);
+      }, 5000);
+      
+      // Animación de pulso para usuarios en línea
+      setInterval(() => {
+        document.querySelectorAll('.online-status.active').forEach(indicator => {
+          indicator.style.animation = 'pulseOnline 2s infinite';
+          setTimeout(() => {
+            indicator.style.animation = '';
+          }, 2000);
+        });
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
